@@ -17,12 +17,28 @@ from backend.github.analyzer import analyze, AnalyzerError
 from backend.github.github_client import GitHubClient, GitHubClientError, github_client
 from backend.deployment.vercel_client import vercel_client, VercelClientError
 from backend.ai.project_summary import build_summary, ProjectSummaryError
+from backend.config import settings
 
 app = FastAPI(title="AutoLaunch AI Agent")
 
+allowed_origins = [origin.strip() for origin in settings.cors_origins if origin.strip()]
+if not allowed_origins or allowed_origins == ["*"]:
+    allowed_origins = [
+        "https://autolaunch-ai-agent.vercel.app",
+        "https://www.autolaunch-ai-agent.vercel.app",
+    ]
+else:
+    allowed_origins.extend([
+        "https://autolaunch-ai-agent.vercel.app",
+        "https://www.autolaunch-ai-agent.vercel.app",
+    ])
+
+allowed_origins = list(dict.fromkeys(allowed_origins))
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
+    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -113,5 +129,6 @@ def run_pipeline(req: PipelineRequest):
 def analyze_only(project_path: str):
     try:
         return analyze(project_path)
+    
     except AnalyzerError as e:
         raise HTTPException(status_code=400, detail=str(e))
