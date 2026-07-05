@@ -12,6 +12,10 @@ class Settings:
     app_environment: str = os.getenv("APP_ENV", "development")
     debug: bool = os.getenv("DEBUG", "false").lower() == "true"
     groq_api_key: str | None = os.getenv("GROQ_API_KEY")
+    github_token: str | None = os.getenv("GITHUB_TOKEN")
+    vercel_token: str | None = os.getenv("VERCEL_TOKEN")
+    vercel_team_id: str | None = os.getenv("VERCEL_TEAM_ID")
+    groq_model: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
     host: str = os.getenv("HOST", "0.0.0.0")
     port: int = int(os.getenv("PORT", "8000"))
     cors_origins: tuple[str, ...] = tuple(
@@ -22,6 +26,26 @@ class Settings:
     @property
     def is_development(self) -> bool:
         return self.app_environment.lower() == "development"
+
+    @property
+    def GROQ_API_KEY(self) -> str | None:
+        return self.groq_api_key
+
+    @property
+    def GITHUB_TOKEN(self) -> str | None:
+        return self.github_token
+
+    @property
+    def VERCEL_TOKEN(self) -> str | None:
+        return self.vercel_token
+
+    @property
+    def VERCEL_TEAM_ID(self) -> str | None:
+        return self.vercel_team_id
+
+    @property
+    def GROQ_MODEL(self) -> str:
+        return self.groq_model
 
 
 settings = Settings()

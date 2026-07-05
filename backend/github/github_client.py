@@ -12,7 +12,7 @@ from github import Github, GithubException
 
 try:
     from backend.config import settings
-    GITHUB_TOKEN = settings.GITHUB_TOKEN
+    GITHUB_TOKEN = getattr(settings, "GITHUB_TOKEN", None) or os.getenv("GITHUB_TOKEN", "")
 except Exception:
     GITHUB_TOKEN = os.getenv("GITHUB_TOKEN", "")
 
@@ -38,18 +38,29 @@ class GitHubClient:
         self.token = token or GITHUB_TOKEN
         if not self.token:
             raise GitHubClientError("GITHUB_TOKEN not set in config.py or .env")
-        self.gh = Github(self.token)
+        try:
+            self.gh = Github(self.token)
+            self.gh.get_user()
+        except Exception as exc:
+            raise GitHubClientError(f"GitHub authentication failed: {exc}") from exc
 
     def ensure_repo_exists(self, repo_name: str, private: bool = False) -> str:
         """Returns the repo's clone URL, creating the repo if it doesn't exist yet."""
-        user = self.gh.get_user()
+        try:
+            user = self.gh.get_user()
+        except Exception as exc:
+            raise GitHubClientError(f"GitHub authentication failed: {exc}") from exc
+
         try:
             repo = user.get_repo(repo_name)
             return repo.clone_url
         except GithubException as e:
             if e.status == 404:
-                repo = user.create_repo(repo_name, private=private, auto_init=False)
-                return repo.clone_url
+                try:
+                    repo = user.create_repo(repo_name, private=private, auto_init=False)
+                    return repo.clone_url
+                except Exception as exc:
+                    raise GitHubClientError(f"GitHub repo creation failed: {exc}") from exc
             raise GitHubClientError(f"Failed to check/create repo: {e}")
 
     def push_project(self, project_path: str, repo_name: str, username: str, private: bool = False) -> str:
@@ -102,5 +113,5 @@ class GitHubClient:
 # Shared instance, same pattern as the rest of the app
 try:
     github_client = GitHubClient()
-except GitHubClientError:
+except Exception:
     github_client = None

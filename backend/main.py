@@ -14,7 +14,7 @@ from pydantic import BaseModel
 from typing import Optional
 
 from backend.github.analyzer import analyze, AnalyzerError
-from backend.github.github_client import github_client, GitHubClientError
+from backend.github.github_client import GitHubClient, GitHubClientError, github_client
 from backend.deployment.vercel_client import vercel_client, VercelClientError
 from backend.ai.project_summary import build_summary, ProjectSummaryError
 
@@ -53,25 +53,27 @@ def run_pipeline(req: PipelineRequest):
     except AnalyzerError as e:
         raise HTTPException(status_code=400, detail=f"Analysis failed: {e}")
 
-    # Step 2: Push to GitHub
+    # Step 2: Push to GitHub (best effort only; deployment should still proceed)
     github_url = None
-    if github_client is not None:
+    client = github_client
+    if client is None:
         try:
-            github_url = github_client.push_project(
+            client = GitHubClient()
+        except GitHubClientError:
+            client = None
+
+    if client is not None:
+        try:
+            github_url = client.push_project(
                 project_path=req.project_path,
                 repo_name=req.repo_name,
                 username=req.github_username,
                 private=req.make_private,
             )
             result["github_url"] = github_url
-            result["status"] = "pushed_to_github"
         except GitHubClientError as e:
             result["github_url"] = None
-            result["status"] = f"github_failed: {e}"
-            return result
-    else:
-        result["status"] = "github_client_unavailable"
-        return result
+            result["github_error"] = str(e)
 
     # Step 3: Deploy to Vercel
     live_url = None
