@@ -17,6 +17,8 @@ from backend.github.analyzer import analyze, AnalyzerError
 from backend.github.github_client import GitHubClient, GitHubClientError, github_client
 from backend.deployment.vercel_client import vercel_client, VercelClientError
 from backend.ai.project_summary import build_summary, ProjectSummaryError
+from backend.ai.ai_engine import engine, AIEngineError
+from backend.schemas import GenerateRequest, GenerateResponse
 from backend.config import settings
 
 app = FastAPI(title="AutoLaunch AI Agent")
@@ -131,4 +133,15 @@ def analyze_only(project_path: str):
         return analyze(project_path)
     
     except AnalyzerError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+
+@app.post("/generate", response_model=GenerateResponse)
+def generate_content(req: GenerateRequest):
+    if engine is None:
+        raise HTTPException(status_code=500, detail="AI engine unavailable")
+    try:
+        result = engine.ask(req.prompt)
+        return GenerateResponse(result=result)
+    except AIEngineError as e:
         raise HTTPException(status_code=400, detail=str(e))

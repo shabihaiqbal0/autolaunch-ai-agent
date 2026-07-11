@@ -4,4 +4,4 @@ python-dotenv
 groq
 PyGithub
 requests
-pydantichf auth login
+pydantic
