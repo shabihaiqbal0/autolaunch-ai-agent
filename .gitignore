@@ -5,7 +5,11 @@ __pycache__/
 *.pyd
 .venv/
 venv/
+
+# Secrets — never commit real keys
 .env
+backend/.env
+.streamlit/secrets.toml
 
 # Node
 node_modules/
@@ -14,5 +18,9 @@ dist/
 # OS
 .DS_Store
 Thumbs.db
+
+# Vercel
 .vercel
-.env*
+
+# Storage (generated at runtime)
+storage/screenshots/

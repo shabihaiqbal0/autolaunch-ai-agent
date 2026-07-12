@@ -10,6 +10,7 @@ Keep this file's output shape stable since ai_engine depends on it.
 """
 
 import os
+from typing import Optional
 
 IGNORE_DIRS = {
     ".git", "venv", ".venv", "node_modules", "__pycache__",
@@ -64,7 +65,7 @@ def read_project(project_path: str) -> dict:
     }
 
 
-def _read_file_safely(full_path: str) -> str | None:
+def _read_file_safely(full_path: str) -> Optional[str]:
     """Reads a file as text, ignoring encoding errors. Returns None if unreadable."""
     try:
         with open(full_path, "r", encoding="utf-8", errors="ignore") as f:

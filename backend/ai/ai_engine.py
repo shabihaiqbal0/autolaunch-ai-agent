@@ -9,7 +9,7 @@ This keeps the API key, model choice, and error handling in one place.
 
 import os
 import json
-from typing import Optional
+from typing import Optional, List, Dict
 from groq import Groq
 
 # Try to pull settings from your existing config.py first.
@@ -66,7 +66,7 @@ class AIEngine:
         except Exception as e:
             raise AIEngineError(f"Groq request failed: {e}")
 
-    def analyze_project(self, file_tree: list[str], key_files: dict[str, str]) -> dict:
+    def analyze_project(self, file_tree: List[str], key_files: Dict[str, str]) -> dict:
         """
         Takes a project's file tree + contents of key files (from
         github/repo_reader.py) and returns a structured analysis.

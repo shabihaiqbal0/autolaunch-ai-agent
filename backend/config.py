@@ -1,5 +1,6 @@
 import os
 from dataclasses import dataclass
+from typing import Optional, Tuple
 
 from dotenv import load_dotenv
 
@@ -11,14 +12,14 @@ class Settings:
     app_name: str = "DevLaunch-AI"
     app_environment: str = os.getenv("APP_ENV", "development")
     debug: bool = os.getenv("DEBUG", "false").lower() == "true"
-    groq_api_key: str | None = os.getenv("GROQ_API_KEY")
-    github_token: str | None = os.getenv("GITHUB_TOKEN")
-    vercel_token: str | None = os.getenv("VERCEL_TOKEN")
-    vercel_team_id: str | None = os.getenv("VERCEL_TEAM_ID")
+    groq_api_key: Optional[str] = os.getenv("GROQ_API_KEY")
+    github_token: Optional[str] = os.getenv("GITHUB_TOKEN")
+    vercel_token: Optional[str] = os.getenv("VERCEL_TOKEN")
+    vercel_team_id: Optional[str] = os.getenv("VERCEL_TEAM_ID")
     groq_model: str = os.getenv("GROQ_MODEL", "llama-3.3-70b-versatile")
     host: str = os.getenv("HOST", "0.0.0.0")
     port: int = int(os.getenv("PORT", "8000"))
-    cors_origins: tuple[str, ...] = tuple(
+    cors_origins: Tuple[str, ...] = tuple(
         origin.strip() for origin in os.getenv("CORS_ORIGINS", "*").split(",") if origin.strip()
     )
     storage_dir: str = os.getenv("STORAGE_DIR", "../storage")
@@ -28,19 +29,19 @@ class Settings:
         return self.app_environment.lower() == "development"
 
     @property
-    def GROQ_API_KEY(self) -> str | None:
+    def GROQ_API_KEY(self) -> Optional[str]:
         return self.groq_api_key
 
     @property
-    def GITHUB_TOKEN(self) -> str | None:
+    def GITHUB_TOKEN(self) -> Optional[str]:
         return self.github_token
 
     @property
-    def VERCEL_TOKEN(self) -> str | None:
+    def VERCEL_TOKEN(self) -> Optional[str]:
         return self.vercel_token
 
     @property
-    def VERCEL_TEAM_ID(self) -> str | None:
+    def VERCEL_TEAM_ID(self) -> Optional[str]:
         return self.vercel_team_id
 
     @property

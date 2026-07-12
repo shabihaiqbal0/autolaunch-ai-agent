@@ -1,9 +1,28 @@
-fastapi
-uvicorn[standard]
-python-dotenv
-groq
-PyGithub
-requests
-pydantic
+# Core Streamlit
 streamlit>=1.32.0
+
+# AI / LLM
+groq
+
+# GitHub
+PyGithub
+
+# HTTP
+requests
+
+# Data
+pandas
+
+# Document parsing (for multi-file upload)
+PyPDF2
+python-docx
+python-pptx
+
+# Env / Config
+python-dotenv
+
+# Screenshots (graceful fallback when unavailable)
 playwright>=1.40.0
+
+# Pydantic for data models
+pydantic>=2.0.0
